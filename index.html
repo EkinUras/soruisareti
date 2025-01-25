@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>soru işareti sitesi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            position: relative;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        #admin-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #admin-login-section, #admin-panel {
+            display: none;
+        }
+        #admin-panel {
+            background-color: #f4f4f4;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .page-link {
+            display: block;
+            margin-top: 10px;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        #chat-section {
+            display: none;
+            background-color: #f4f4f4;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        #chat-messages {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #chat-messages p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>soru işareti sitesi</h1>
+        <button id="admin-button">Admin</button>
+        <button id="chat-button" style="position: absolute; top: 50px; right: 10px; background-color: #4CAF50; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Sohbet</button>
+    </header>
+    <main>
+        <section>
+            <h2>?</h2>
+            <p>?</p>
+        </section>
+        <section id="admin-login-section">
+            <h2>Admin Giriş Paneli</h2>
+            <form id="admin-login-form">
+                <label for="username">Kullanıcı Adı:</label>
+                <input type="text" id="username" name="username" required>
+                <br>
+                <label for="password">Şifre:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+                <button type="submit">Giriş Yap</button>
+            </form>
+        </section>
+        <section id="admin-panel">
+            <h2>Admin Paneli</h2>
+            <button id="change-background">Arka Planı Değiştir</button>
+            <button id="reset-background">Arka Planı Sıfırla</button>
+            <button id="add-text">Metin Ekle</button>
+            <button id="remove-text">Metni Sil</button>
+            <button id="add-image">Fotoğraf Ekle</button>
+            <button id="remove-image">Fotoğrafı Sil</button>
+            <button id="add-image-text">Fotoğraflı Metin Ekle</button>
+            <button id="remove-image-text">Fotoğraflı Metni Sil</button>
+            <button id="create-page">Yeni Sayfa Oluştur</button>
+            <button id="delete-page">Sayfa Sil</button>
+        </section>
+        <section id="pages-section">
+            <h2>Sayfalar</h2>
+            <!-- Yeni sayfalar buraya eklenecek -->
+        </section>
+        <section id="chat-section">
+            <h2>Sohbet</h2>
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." style="width: 80%;">
+            <button id="send-chat">Gönder</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 soru işareti site</p>
+    </footer>
+    <script>
+        document.getElementById('admin-button').addEventListener('click', function() {
+            document.getElementById('admin-login-section').style.display = 'block';
+        });
+
+        document.getElementById('admin-login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'admin' && password === '1234') {
+                document.getElementById('admin-login-section').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+            } else {
+                alert('Geçersiz kullanıcı adı veya şifre');
+            }
+        });
+
+        document.getElementById('change-background').addEventListener('click', function() {
+            const backgroundUrl = prompt('Arka plan URL\'si girin:');
+            if (backgroundUrl) {
+                if (window.innerWidth > 768) {
+                    document.body.style.backgroundImage = `url('${backgroundUrl}.jpg')`;
+                } else {
+                    document.body.style.backgroundImage = `url('${backgroundUrl}.png')`;
+                }
+                localStorage.setItem('backgroundImage', document.body.style.backgroundImage);
+            }
+        });
+
+        document.getElementById('reset-background').addEventListener('click', function() {
+            document.body.style.backgroundImage = '';
+            localStorage.removeItem('backgroundImage');
+        });
+
+        document.getElementById('add-text').addEventListener('click', function() {
+            const text = prompt('Eklenecek metni girin:');
+            if (text) {
+                const textSection = document.createElement('section');
+                textSection.innerHTML = `<p>${text}</p>`;
+                document.querySelector('main').appendChild(textSection);
+                saveContent();
+            }
+        });
+
+        document.getElementById('remove-text').addEventListener('click', function() {
+            const textSections = document.querySelectorAll('main section p');
+            if (textSections.length > 0) {
+                textSections[textSections.length - 1].parentElement.remove();
+                saveContent();
+            } else {
+                alert('Silinecek metin yok');
+            }
+        });
+
+        document.getElementById('add-image').addEventListener('click', function() {
+            const imageUrl = prompt('Fotoğraf URL\'si girin:');
+            if (imageUrl) {
+                const imageSection = document.createElement('section');
+                if (window.innerWidth > 768) {
+                    imageSection.innerHTML = `<img src="${imageUrl}.jpg" alt="Image">`;
+                } else {
+                    imageSection.innerHTML = `<img src="${imageUrl}.png" alt="Image">`;
+                }
+                document.querySelector('main').appendChild(imageSection);
+                saveContent();
+            }
+        });
+
+        document.getElementById('remove-image').addEventListener('click', function() {
+            const imageSections = document.querySelectorAll('main section img');
+            if (imageSections.length > 0) {
+                imageSections[imageSections.length - 1].parentElement.remove();
+                saveContent();
+            } else {
+                alert('Silinecek fotoğraf yok');
+            }
+        });
+
+        document.getElementById('add-image-text').addEventListener('click', function() {
+            const imageUrl = prompt('Fotoğraf URL\'si girin:');
+            const text = prompt('Eklenecek metni girin:');
+            if (imageUrl && text) {
+                const imageTextSection = document.createElement('section');
+                if (window.innerWidth > 768) {
+                    imageTextSection.innerHTML = `<img src="${imageUrl}.jpg" alt="Image"><p>${text}</p>`;
+                } else {
+                    imageTextSection.innerHTML = `<img src="${imageUrl}.png" alt="Image"><p>${text}</p>`;
+                }
+                document.querySelector('main').appendChild(imageTextSection);
+                saveContent();
+            }
+        });
+
+        document.getElementById('remove-image-text').addEventListener('click', function() {
+            const imageTextSections = document.querySelectorAll('main section img + p');
+            if (imageTextSections.length > 0) {
+                imageTextSections[imageTextSections.length - 1].parentElement.remove();
+                saveContent();
+            } else {
+                alert('Silinecek fotoğraflı metin yok');
+            }
+        });
+
+        document.getElementById('create-page').addEventListener('click', function() {
+            const pageName = prompt('Sayfa adı girin:');
+            if (pageName) {
+                const access = confirm('Bu sayfaya herkes erişebilsin mi?');
+                const pageLink = document.createElement('a');
+                pageLink.className = 'page-link';
+                pageLink.textContent = pageName;
+                pageLink.href = '#';
+                pageLink.addEventListener('click', function() {
+                    alert(`Bu sayfa: ${pageName}`);
+                });
+                document.getElementById('pages-section').appendChild(pageLink);
+                saveContent();
+                if (access) {
+                    const publicPageLink = document.createElement('a');
+                    publicPageLink.className = 'page-link';
+                    publicPageLink.textContent = pageName;
+                    publicPageLink.href = '#';
+                    publicPageLink.addEventListener('click', function() {
+                        alert(`Bu sayfa: ${pageName}`);
+                    });
+                    document.querySelector('header').appendChild(publicPageLink);
+                    saveContent();
+                }
+            }
+        });
+
+        document.getElementById('delete-page').addEventListener('click', function() {
+            const pageName = prompt('Silmek istediğiniz sayfanın adını girin:');
+            if (pageName) {
+                const pageLinks = document.querySelectorAll('.page-link');
+                let found = false;
+                pageLinks.forEach(link => {
+                    if (link.textContent === pageName) {
+                        link.remove();
+                        found = true;
+                    }
+                });
+                if (!found) {
+                    alert('Sayfa bulunamadı');
+                } else {
+                    saveContent();
+                }
+            }
+        });
+
+        document.getElementById('chat-button').addEventListener('click', function() {
+            const chatSection = document.getElementById('chat-section');
+            chatSection.style.display = chatSection.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('send-chat').addEventListener('click', function() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageElement = document.createElement('p');
+                messageElement.textContent = `Anonim: ${message}`;
+                chatMessages.appendChild(messageElement);
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                saveChatMessages();
+            }
+        });
+
+        function saveContent() {
+            const mainContent = document.querySelector('main').innerHTML;
+            const headerContent = document.querySelector('header').innerHTML;
+            localStorage.setItem('mainContent', mainContent);
+            localStorage.setItem('headerContent', headerContent);
+        }
+
+        function loadContent() {
+            const mainContent = localStorage.getItem('mainContent');
+            const headerContent = localStorage.getItem('headerContent');
+            const backgroundImage = localStorage.getItem('backgroundImage');
+            if (mainContent) {
+                document.querySelector('main').innerHTML = mainContent;
+            }
+            if (headerContent) {
+                document.querySelector('header').innerHTML = headerContent;
+            }
+            if (backgroundImage) {
+                document.body.style.backgroundImage = backgroundImage;
+            }
+        }
+
+        function saveChatMessages() {
+            const chatMessages = document.getElementById('chat-messages').innerHTML;
+            localStorage.setItem('chatMessages', chatMessages);
+        }
+
+        function loadChatMessages() {
+            const chatMessages = localStorage.getItem('chatMessages');
+            if (chatMessages) {
+                document.getElementById('chat-messages').innerHTML = chatMessages;
+            }
+        }
+
+        window.onload = function() {
+            loadContent();
+            loadChatMessages();
+        };
+    </script>
+</body>
+</html>
